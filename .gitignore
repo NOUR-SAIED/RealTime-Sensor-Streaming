@@ -1,0 +1,15 @@
+# .gitignore
+
+# Fichiers Python compilés et caches
+__pycache__/
+*.pyc
+
+# Dépendances Python 
+.venv/
+venv/
+env/
+
+# Fichiers de configuration sensibles et temporaires
+.env
+Thumbs.db # Windows
+.dockerignore
