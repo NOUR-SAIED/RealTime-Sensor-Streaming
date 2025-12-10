@@ -3,6 +3,8 @@
 # Fichiers Python compilés et caches
 __pycache__/
 *.pyc
+.idea/
+
 
 # Dépendances Python 
 .venv/
