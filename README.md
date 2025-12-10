@@ -23,23 +23,24 @@ Clonez ce dépôt, naviguez jusqu'au dossier, puis suivez ces trois étapes dans
 Cette commande construit les images personnalisées et lance tous les services en arrière-plan.
 
 
-docker compose up --build -d
+`docker compose up --build -d`
 
 
 ### 2.Lancer le Job Spark Streaming
 Ce job est lancé manuellement pour s'assurer que le cluster Spark est opérationnel.
 NOTE : Le terminal restera bloqué par le job de streaming.
 # 2a. Copier le script Spark (nécessaire pour l'image BDE)
-docker cp spark_streaming.py spark-master:/tmp/spark_streaming.py
+`docker cp spark_streaming.py spark-master:/tmp/spark_streaming.py`
 
 # 2b. Lancer le job Spark-Submit
-docker exec -it spark-master /spark/bin/spark-submit \
+`docker exec -it spark-master /spark/bin/spark-submit \
     --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.3.0,org.postgresql:postgresql:42.6.0 \
     --master spark://spark-master:7077 \
-    /tmp/spark_streaming.py
+    /tmp/spark_streaming.py`
 ### 3.Accéder au Dashboard
 Ouvrez votre navigateur :
-http://localhost:8501
-###Arrêt
-Pour arrêter l'ensemble du pipeline et libérer les ressources : docker compose down
+`http://localhost:8501`
+### Arrêt
+Pour arrêter l'ensemble du pipeline et libérer les ressources : 
+`docker compose down`
 
