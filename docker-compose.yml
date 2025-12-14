@@ -11,7 +11,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
     ports:
-      - "5432:5432" # Optionnel, pour inspection manuelle
+      - "5432:5432" 
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.0
     environment:
@@ -39,10 +39,10 @@ services:
   producer:
     build: .
       # AJOUT du délai de 10 secondes
-    command: sh -c "sleep 10 && python producer.py"
+    command: /bin/sh -c "sleep 25 && python producer.py"
     depends_on:
         - kafka
-  # --- SPARK CLUSTER (BDE - Fiable et Libre) ---
+  # --- SPARK CLUSTER ---
   spark-master:
     image: bde2020/spark-master:3.3.0-hadoop3.3 # Image fiable pour master
     container_name: spark-master
