@@ -36,7 +36,7 @@ conn = get_db_connection()
 tz = pytz.timezone(TIMEZONE)
 
 if conn:
-    st.title("Dashboard Capteurs Temps Réel")
+    st.title("Dashboard capteurs environnementaux Temps Réel")
     #On donnes à l’utilisateur :la fenêtre temporelle qu’il veut voir, le capteur,la fréquence de rafraîchissement
     st.sidebar.header("Paramètres de Visualisation")
     time_range_minutes = st.sidebar.slider("Fenêtre Historique (Minutes)", 1, 60, 10)
@@ -100,12 +100,28 @@ if conn:
                         st.warning("Aucune donnée brute trouvée.")
                     else:
                         latest = raw_df.iloc[-1]
-                        col1, col2, col3, col4, col5 = st.columns(5)
-                        col1.metric("Température (°C)", f"{latest['temperature']:.1f}")
-                        col2.metric("Humidité (%)", f"{latest['humidity']:.1f}")
-                        col3.metric("Pression (hPa)", f"{latest['pressure']:.2f}")
-                        col4.metric("CO2 (ppm)", f"{latest['co2_level']:.0f}")
-                        col5.metric("Batterie (%)", f"{latest['battery_level']:.1f}")
+                    
+                        #Battery kpi summary
+                        if selected_sensor == 'Tous':
+                            battery_mean=raw_df['battery_level'].mean()
+                            battery_min=raw_df['battery_level'].min()
+                            battery_max=raw_df['battery_level'].max()
+                            
+                            b1,b2,b3 = st.columns(3)
+                            b1.metric("batterie Moyenne (%)", f"{battery_mean:.1f}")
+                            b2.metric("batterie Min (%)", f"{battery_min:.1f}")
+                            b3.metric("batterie Max (%)", f"{battery_max:.1f}")
+                            
+                            fig_batt=px.bar(raw_df, x='sensor_id', y='battery_level', color='sensor_id', title="Niveau de Batterie par Capteur")
+                            st.plotly_chart(fig_batt, use_container_width=True, key=f"batt_bar_{t}")
+                        else:
+                        
+                            col1, col2, col3, col4, col5 = st.columns(5)
+                            col1.metric("Température (°C)", f"{latest['temperature']:.1f}")
+                            col2.metric("Humidité (%)", f"{latest['humidity']:.1f}")
+                            col3.metric("Pression (hPa)", f"{latest['pressure']:.2f}")
+                            col4.metric("CO2 (ppm)", f"{latest['co2_level']:.0f}")
+                            col5.metric("Batterie (%)", f"{latest['battery_level']:.1f}")   
                         
                         # Alerts
                         if latest['status'] == 'warning':
@@ -146,8 +162,16 @@ if conn:
                         
                         agg3, agg4 = st.columns(2)
                         agg3.plotly_chart(px.line(agg_df, x='window_end', y='avg_co2', color='sensor_id', title="CO2 Moyen 1-min"), use_container_width=True, key=f"agg_co2_{t}")
-                        agg4.plotly_chart(px.line(agg_df, x='window_end', y='warning_count', color='sensor_id', title="Warnings par fenêtre"), use_container_width=True, key=f"agg_warn_{t}")
-                        
+                        agg4.plotly_chart(
+                            px.pie(
+                                agg_df.groupby('sensor_id')['warning_count'].sum().reset_index(),
+                                names='sensor_id',
+                                values='warning_count',
+                                title="Répartition des Warnings par Capteur"
+                            ),
+                            use_container_width=True,
+                            key=f"agg_warn_{t}"
+                        )
                         # Aggregated stats table
                         st.subheader("Statistiques Agrégées par Capteur")
                         stats_df = agg_df.groupby('sensor_id')[['avg_temp','avg_humidity','avg_co2','avg_battery']].mean().reset_index()

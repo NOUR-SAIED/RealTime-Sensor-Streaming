@@ -38,7 +38,6 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT_INTERNAL
   producer:
     build: .
-      # AJOUT du délai de 10 secondes
     command: /bin/sh -c "sleep 25 && python producer.py"
     depends_on:
         - kafka
@@ -49,16 +48,22 @@ services:
     ports:
       - "8080:8080"
       - "7077:7077"
+    volumes:
+    - ./spark-checkpoints:/tmp/spark_checkpoints
 
   spark-worker:
     image: bde2020/spark-worker:3.3.0-hadoop3.3 # Image fiable pour worker
     container_name: spark-worker
+    ports:
+    - "8081:8081"
     depends_on:
       - spark-master
     environment:
       SPARK_MASTER_URL: spark://spark-master:7077
       SPARK_WORKER_CORES: 1
       SPARK_WORKER_MEMORY: 1g
+    volumes:
+      - ./spark-checkpoints:/tmp/spark_checkpoints
   dashboard:
     build: . # Utilise le Dockerfile
     command: streamlit run dashboard.py --server.port 8501 --server.address 0.0.0.0
