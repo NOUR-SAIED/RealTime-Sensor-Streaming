@@ -9,6 +9,7 @@ Ce projet met en œuvre un pipeline de streaming de données de capteurs en temp
 3. **Spark Streaming (`spark_streaming.py`)**: Lit les messages de Kafka, effectue la transformation simple et écrit par lots dans PostgreSQL.
 4. **PostgreSQL (`db`)**: Base de données de persistance pour les données traitées.
 5. **Streamlit (`dashboard.py`)**: Tableau de bord de visualisation en temps réel, lisant les données de PostgreSQL.
+![Alt text](assets/architecture.jpeg)
 
 ## Prérequis
 
